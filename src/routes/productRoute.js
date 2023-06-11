@@ -7,13 +7,15 @@ const {
   getProducts,
   updateProduct,
   deleteProduct,
+  filterProduct,
 } = require("../controllers/productController");
 
 router.post("/add", authTokenHandler, createProduct);
-router.get("/all", authTokenHandler, getProducts);
+router.get("/all", getProducts);
+router.get("all", filterProduct);
 router.get("/:id", authTokenHandler, getProduct);
 
-router.patch("/:id", authTokenHandler, updateProduct);
+router.patch("/:id", updateProduct);
 router.delete("/:id", authTokenHandler, deleteProduct);
 
 module.exports = router;

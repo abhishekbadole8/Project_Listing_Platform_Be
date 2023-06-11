@@ -3,7 +3,15 @@ const Product = require("../models/productModel");
 // Create Product
 const createProduct = async (req, res) => {
   try {
-    const { title, category, logo_url, product_link, description } = req.body;
+    const {
+      title,
+      category,
+      logo_url,
+      product_link,
+      description,
+      vote,
+      comments,
+    } = req.body;
     // All Fields Check
     if (!title || !category || !logo_url || !product_link || !description) {
       res.status(400);
@@ -17,9 +25,11 @@ const createProduct = async (req, res) => {
       logo_url,
       product_link,
       description,
+      vote,
+      comments,
     });
 
-    res.status(200).send(product);
+    res.status(200).send("Product added Successfully");
   } catch (error) {
     res.send({ message: error.message });
   }
@@ -33,6 +43,23 @@ const getProduct = async (req, res) => {
     res.status(200).send(product);
   } catch (error) {
     res.send({ message: error.message });
+  }
+};
+
+//filter Query
+const filterProduct= async (req, res) => {
+  try {
+    let query = {};
+
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    const products = await Product.find(query);
+    res.status(200).json(products);
+  } catch (error) {
+    console.log("Error Getting products", error);
+    res.status(500).json({ error: "Server Error" });
   }
 };
 
@@ -73,6 +100,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   createProduct,
   getProduct,
+  filterProduct,
   getProducts,
   updateProduct,
   deleteProduct,

@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const asyncHandler = require("express-async-handler");
 
 // @desc Register a user
 // @route POST api/user/register
@@ -20,8 +19,7 @@ const createUser = async (req, res) => {
 
     //If user already exists
     if (isUserValid) {
-      res.status(400);
-      throw new Error("Email Is Already Registered");
+      res.status(403).send("Email already exists");
     }
 
     // Converting Password to Hash Password
@@ -57,13 +55,12 @@ const loginUser = async (req, res) => {
 
     // Compare Password
     if (user && (await bcrypt.compare(password, user.password))) {
-        
       // Generate Token
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: "1d",
       });
 
-      res.status(200).send({ user, token });
+      res.status(200).send(token);
     } else {
       res.status(400);
       throw new Error("Email/password Is Invalid");

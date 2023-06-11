@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const productSchema = mongoose.Schema(
   {
-    user_id:{
-      type:mongoose.Schema.Types.ObjectId,
-      required:true,
-      ref:"User"
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
     },
     title: {
       type: String,
@@ -13,8 +13,8 @@ const productSchema = mongoose.Schema(
     },
     category: {
       type: Array,
-      required: true,
       default: [],
+      required: true,
     },
     logo_url: {
       type: String,
@@ -29,6 +29,7 @@ const productSchema = mongoose.Schema(
     },
     vote: {
       type: Number,
+      default: 0,
     },
     comments: {
       type: Array,
