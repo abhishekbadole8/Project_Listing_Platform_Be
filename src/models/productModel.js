@@ -18,6 +18,7 @@ const productSchema = mongoose.Schema(
     },
     logo_url: {
       type: String,
+      required: true,
     },
     product_link: {
       type: String,

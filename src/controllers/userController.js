@@ -11,7 +11,7 @@ const createUser = async (req, res) => {
 
     //All fields Mandatory
     if (!name || !email || !mobile || !password) {
-      res.send({ message: "All Field's are mandatory !!!" });
+      throw new Error("All Field's are mandatory !!!");
     }
 
     //Check User Already Present Or Not
@@ -19,7 +19,7 @@ const createUser = async (req, res) => {
 
     //If user already exists
     if (isUserValid) {
-      res.status(403).send("Email already exists");
+      throw new Error("Email already exists");
     }
 
     // Converting Password to Hash Password
@@ -32,7 +32,9 @@ const createUser = async (req, res) => {
       mobile,
       password: hashedPassword,
     });
-    res.status(200).send(user);
+    if (user) {
+      res.status(200).send(user);
+    }
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
@@ -47,7 +49,8 @@ const loginUser = async (req, res) => {
 
     //All fields Mandatory
     if (!email || !password) {
-      res.send({ message: "All Field's are mandatory !!!" });
+      throw new Error("All Field's are mandatory !!!");
+      // res.status(403).send({ message: "All Field's are mandatory !!!" });
     }
 
     //Check User Already Present Or Not
@@ -62,8 +65,7 @@ const loginUser = async (req, res) => {
 
       res.status(200).send(token);
     } else {
-      res.status(400);
-      throw new Error("Email/password Is Invalid");
+      res.status(400).send({ message: "Email/password Is Invalid" });
     }
   } catch (error) {
     res.status(404).send({ message: error.message });
