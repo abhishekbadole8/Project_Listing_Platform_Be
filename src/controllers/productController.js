@@ -46,27 +46,17 @@ const getProduct = async (req, res) => {
   }
 };
 
-//filter Query
-const filterProduct= async (req, res) => {
-  try {
-    let query = {};
-
-    if (req.query.category) {
-      query.category = req.query.category;
-    }
-
-    const products = await Product.find(query);
-    res.status(200).json(products);
-  } catch (error) {
-    console.log("Error Getting products", error);
-    res.status(500).json({ error: "Server Error" });
-  }
-};
-
 // Get All Products
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { category } = req.query;
+    let query = {};
+
+    if (category) {
+      query.category = { $in: category.split(",") };
+    }
+    const products = await Product.find(query);
+    console.log(products);
     res.status(200).send(products);
   } catch (error) {
     res.send({ message: error.message });
@@ -100,7 +90,6 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   createProduct,
   getProduct,
-  filterProduct,
   getProducts,
   updateProduct,
   deleteProduct,
