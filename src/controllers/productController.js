@@ -56,7 +56,6 @@ const getProducts = async (req, res) => {
       query.category = { $in: category.split(",") };
     }
     const products = await Product.find(query);
-    console.log(products);
     res.status(200).send(products);
   } catch (error) {
     res.send({ message: error.message });
