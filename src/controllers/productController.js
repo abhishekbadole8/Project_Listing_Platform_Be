@@ -29,7 +29,7 @@ const createProduct = async (req, res) => {
       comments,
     });
 
-    res.status(200).send("Product added Successfully");
+    res.status(201).send("Product added Successfully");
   } catch (error) {
     res.send({ message: error.message });
   }
@@ -56,7 +56,6 @@ const getProducts = async (req, res) => {
       query.category = { $in: category.split(",") };
     }
     const products = await Product.find(query);
-    console.log(products);
     res.status(200).send(products);
   } catch (error) {
     res.send({ message: error.message });
@@ -79,7 +78,7 @@ const updateProduct = async (req, res) => {
 //Delete Product
 const deleteProduct = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params;    
     const deletedproduct = await Product.findByIdAndDelete(id);
     res.status(200).send("Product Deleted Successfully !!!");
   } catch (error) {
