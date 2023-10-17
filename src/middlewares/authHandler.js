@@ -6,25 +6,24 @@ const authTokenHandler = async (req, res, next) => {
 
     if (authHeader && authHeader.startsWith("Bearer")) {
       let token = authHeader.split(" ")[1];
-      const decode = jwt.verify(
-        token,
-        process.env.JWT_SECRET,
-        (error, decode) => {
-          if (error) {
-            res.status(401);
-            // res.send({ message: "User Is Not Authorized !!" });
-            throw new Error("User Is Not Authorized !!");
-          }
-          req.id = decode.id;
-          next();
-        }
-      );
       if (!token) {
-        throw new Error("User Is Not Authorized Or Token Is missing");
+        return res
+          .status(400)
+          .json({ message: "User is not authorized or token is missing" });
       }
+
+      jwt.verify(token, process.env.JWT_SECRET, (error, decode) => {
+        if (error) {
+          return res.status(401).json({ message: "User is not authorized" });
+        }
+        req.id = decode.id;
+        next();
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid token format" });
     }
   } catch (error) {
-    res.send({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 

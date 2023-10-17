@@ -1,21 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 const port = process.env.PORT || 5000;
-const bodyParser = require("body-parser");
 
 const connectDb = require("./src/config/dbConnection");
-const authRoute = require("./src/routes/authRoute");
+const userRoutes = require("./src/routes/userRoutes");
 const productRoute = require("./src/routes/productRoute");
 connectDb();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cors()); // CORS middleware
 
-app.use("/api/user", authRoute);
+app.use("/api/user", userRoutes);
 app.use("/api/product", productRoute);
 
 app.listen(port, () => {

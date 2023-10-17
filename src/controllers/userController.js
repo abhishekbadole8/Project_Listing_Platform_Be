@@ -2,30 +2,29 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
-// @desc Register a user
+// @desc Register a new user
 // @route POST api/user/register
-// @access public route
+// @access public
 const createUser = async (req, res) => {
   try {
     const { name, email, mobile, password } = req.body;
 
-    //All fields Mandatory
+    // Check if all fields are provided
     if (!name || !email || !mobile || !password) {
-      throw new Error("All Field's are mandatory !!!");
+      return res.status(400).json({ message: "All field's are mandatory !!!" });
     }
 
-    //Check User Already Present Or Not
-    const isUserValid = await User.findOne({ email });
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
 
-    //If user already exists
-    if (isUserValid) {
-      throw new Error("Email already exists");
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
     }
 
-    // Converting Password to Hash Password
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create User
+    // Create a new user
     const user = await User.create({
       name,
       email,
@@ -33,10 +32,12 @@ const createUser = async (req, res) => {
       password: hashedPassword,
     });
     if (user) {
-      res.status(200).send(user);
+      res.status(201).json(user);
+    } else {
+      res.status(500).json({ message: "User registration failed" });
     }
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -47,28 +48,33 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    //All fields Mandatory
+    // Check if all fields are provided
     if (!email || !password) {
-      throw new Error("All Field's are mandatory !!!");
-      // res.status(403).send({ message: "All Field's are mandatory !!!" });
+      return res.status(400).json({ message: "All fields are mandatory!!!" });
     }
 
-    //Check User Already Present Or Not
+    // Check if the user exists
     const user = await User.findOne({ email });
 
-    // Compare Password
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate Token
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
-      });
-
-      res.status(200).send(token);
-    } else {
-      res.status(400).send({ message: "Email/password Is Invalid" });
+    if (!user) {
+      return res.status(400).json({ message: "Email/password is invalid" });
     }
+
+    // Compare the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Email/password is invalid" });
+    }
+
+    // Generate a JSON Web Token (JWT)
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    res.status(200).json({ token });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 

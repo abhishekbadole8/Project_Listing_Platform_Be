@@ -1,6 +1,9 @@
 const Product = require("../models/productModel");
 
-// Create Product
+// @desc Create a new product
+// @route POST api/products
+// @access Private
+
 const createProduct = async (req, res) => {
   try {
     const {
@@ -12,12 +15,13 @@ const createProduct = async (req, res) => {
       vote,
       comments,
     } = req.body;
-    // All Fields Check
+
+    // Check if all required fields are provided
     if (!title || !category || !logo_url || !product_link || !description) {
-      res.status(400);
-      throw new Error("All Fields are Mandantory");
+      return res.status(400).json({ message: "All fields are mandatory" });
     }
-    // Create Product Here
+
+    // Create the product
     const product = await Product.create({
       user_id: req.id,
       title,
@@ -29,24 +33,35 @@ const createProduct = async (req, res) => {
       comments,
     });
 
-    res.status(201).send("Product added Successfully");
+    res.status(201).json({ message: "Product added successfully", product });
   } catch (error) {
-    res.send({ message: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-// Get Product
+// Get a product by ID.
+// @route GET /api/products/:id
+// @access Public
+
 const getProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await Product.findById(id);
-    res.status(200).send(product);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(product);
   } catch (error) {
-    res.send({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// Get All Products
+// Get all products, optionally filtered by category.
+// @route GET /api/products
+// @access Public
+
 const getProducts = async (req, res) => {
   try {
     const { category } = req.query;
@@ -56,33 +71,50 @@ const getProducts = async (req, res) => {
       query.category = { $in: category.split(",") };
     }
     const products = await Product.find(query);
-    res.status(200).send(products);
+
+    res.status(200).json(products);
   } catch (error) {
-    res.send({ message: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-//Update Product
+// Update a product by ID.
+// @route PUT /api/products/:id
+// @access Public
+
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedproduct = await Product.findByIdAndUpdate(id, req.body, {
+    const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
       new: true,
     });
-    res.status(200).send(updatedproduct);
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(updatedProduct);
   } catch (error) {
-    res.send({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-//Delete Product
+// Delete a product by ID.
+// @route DELETE /api/products/:id
+// @access Public
+
 const deleteProduct = async (req, res) => {
   try {
-    const { id } = req.params;    
-    const deletedproduct = await Product.findByIdAndDelete(id);
-    res.status(200).send("Product Deleted Successfully !!!");
+    const { id } = req.params;
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
-    res.send({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
